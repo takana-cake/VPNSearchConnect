@@ -1,6 +1,8 @@
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import csv
+import codecs
 import urllib.request
 import json
 import os.path
@@ -36,9 +38,9 @@ if os.path.exists(scriptpath + "api_key.txt"):
 else:
 	print("\n--------------------------------------------------------")
 	print("Please enter ipstack API key .")
-	ipstack_key = raw_input('>>>  ')
+	ipstack_key = input('>>>  ')
 	try:
-		res2 = urllib.request.urlopen("http://api.ipstack.com/8.8.8.8?" + ipstack_key)
+		res2 = urllib.request.urlopen("http://api.ipstack.com/8.8.8.8?access_key=" + ipstack_key)
 	except:
 		print("\n--------------------------------------------------------")
 		print("Please re-enter key.")
@@ -54,8 +56,16 @@ region = json.load(f)
 f.close()
 
 # read VPN list
+'''
+res1 = urllib.request.urlopen("http://www.vpngate.net/api/iphone/").read()
+with open(scriptpath + "tukubavpn.csv", "wb") as f:
+	f.write(res1)
+with open(scriptpath + "tukubavpn.csv") as f:
+	res2 = f.read()
+cr = csv.reader(res2)
+'''
 res1 = urllib.request.urlopen("http://www.vpngate.net/api/iphone/")
-cr = csv.reader(res1)
+cr = csv.reader(codecs.iterdecode(res1, 'utf-8'), delimiter=",", lineterminator="\r\n")
 
 # search vpn server
 print("\n--------------------------------------------------------")
@@ -77,7 +87,7 @@ for row in cr:
 		else:
 			# get region_code
 			print("Searching the region of IP(" + row[1] + ").")
-			res2 = urllib.request.urlopen("http://api.ipstack.com/" + row[1] + "?" + ipstack_key)
+			res2 = urllib.request.urlopen("http://api.ipstack.com/" + row[1] + "?access_key=" + ipstack_key)
 			iptoaddrs = json.loads(res2.read().decode('utf8'))
 			print(iptoaddrs["region_code"])
 			if iptoaddrs["region_code"] is None:
@@ -99,6 +109,7 @@ for row in cr:
 					print("Connecting to " + row[0] + "... Please wait.")
 					# Base64 decode
 					ovpn = base64.b64decode(row[14])
+					ovpn = ovpn.decode("UTF-8")
 					# make .ovpn
 					f = open(scriptpath + "vpnovpn.ovpn", "w")
 					f.write(ovpn)
@@ -106,8 +117,12 @@ for row in cr:
 					# vpn connect
 					com = "/usr/sbin/openvpn " + scriptpath + "vpnovpn.ovpn"
 					proc = Popen(com, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+					buf = []
 					while True:
 						line = proc.stdout.readline()
+						line = line.decode("UTF-8")
+						print(line)
+						#buf =  buf + line
 						if line.find("failed") > -1:
 							print("Connection failed: " + row[0])
 							#break
@@ -115,12 +130,10 @@ for row in cr:
 							subprocess.call(cmd.split())
 							continue
 						elif line.find("Initialization Sequence Completed") > -1:
-							print("--------------------------------------------------------")
 							print("Connection success: ")
 							print("\t" + row[0] + " (" + row[1] + ") => " + str(region_code) + ":" + region[region_code-1])
 							print("--------------------------------------------------------")
 							sys.exit(0)
-print("--------------------------------------------------------")
 print("Cannot find a valid VPN server.")
 print("--------------------------------------------------------")
 sys.exit(-1)
