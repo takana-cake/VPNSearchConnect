@@ -4,7 +4,7 @@
 
 
 ## 必要な環境
-	-$ apt-get install python openvpn-
+
 
 ## 使い方
 
