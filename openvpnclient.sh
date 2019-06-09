@@ -2,7 +2,7 @@
 
 progname=OpenVPN_client
 lockfile=/var/lock/subsys/openvpnclient
-prog="/usr/bin/python "$(cd $(dirname $0) && pwd)"/vpnsearchconnect.py"
+prog="/usr/bin/python3 "$(cd $(dirname $0) && pwd)"/vpnsearchconnect.py"
 
 case "$1" in
   start)
