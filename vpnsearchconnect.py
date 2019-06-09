@@ -37,6 +37,18 @@ if os.path.exists(scriptpath + "api_key.txt"):
 	f = open(scriptpath + "api_key.txt", "r")
 	ipstack_key = f.read()
 	f.close()
+	try:
+		res2 = urllib.request.urlopen("http://api.ipstack.com/8.8.8.8?access_key=" + ipstack_key)
+	except:
+		print("\n--------------------------------------------------------")
+		print("ipstack err.")
+		print("\n--------------------------------------------------------")
+		sys.exit(1)
+	iptoaddrs = json.loads(res2.read().decode('utf8'))
+	if iptoaddrs['success'] is False:
+		print("ipstack API is err :" + iptoaddrs['error']['info'])
+		print('please check "api_key.txt"')
+		sys.exit(1)
 else:
 	print("\n--------------------------------------------------------")
 	print("Please enter ipstack API key .")
@@ -45,8 +57,12 @@ else:
 		res2 = urllib.request.urlopen("http://api.ipstack.com/8.8.8.8?access_key=" + ipstack_key)
 	except:
 		print("\n--------------------------------------------------------")
-		print("Please re-enter key.")
+		print("ipstack err.")
 		print("\n--------------------------------------------------------")
+		sys.exit(1)
+	if iptoaddrs['success'] is False:
+		print("ipstack API is err :" + iptoaddrs['error']['info'])
+		print("please check key")
 		sys.exit(1)
 	f = open(scriptpath + "api_key.txt", "w")
 	f.write(ipstack_key)
