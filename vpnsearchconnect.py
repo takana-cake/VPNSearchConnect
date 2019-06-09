@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 import csv
@@ -26,11 +25,14 @@ if os.path.exists(scriptpath + "vsc.txt"):
 	f.close()
 if os.path.exists(scriptpath + "exception.txt"):
 	f = open(scriptpath + "exception.txt", "r")
-	line = f.readline()
-	for line in open(sys.srgv[2], 'r'):
-		itemlist = line[:-1].split("\n")
-		exception_ip.append([ item for item in itemlist ])
+	lines = f.readlines()
 	f.close()
+	#for line in lines:
+	#       itemlist = line[:-1].split("\n")
+	#       exception_ip.append([ item for item in itemlist ])
+	for line in lines:
+		itemlist = line[:-1].split("\n")
+		exception_ip.append(itemlist[0])
 if os.path.exists(scriptpath + "api_key.txt"):
 	f = open(scriptpath + "api_key.txt", "r")
 	ipstack_key = f.read()
@@ -45,7 +47,7 @@ else:
 		print("\n--------------------------------------------------------")
 		print("Please re-enter key.")
 		print("\n--------------------------------------------------------")
-		sys.exit(-1)
+		sys.exit(1)
 	f = open(scriptpath + "api_key.txt", "w")
 	f.write(ipstack_key)
 	f.close()
@@ -56,14 +58,6 @@ region = json.load(f)
 f.close()
 
 # read VPN list
-'''
-res1 = urllib.request.urlopen("http://www.vpngate.net/api/iphone/").read()
-with open(scriptpath + "tukubavpn.csv", "wb") as f:
-	f.write(res1)
-with open(scriptpath + "tukubavpn.csv") as f:
-	res2 = f.read()
-cr = csv.reader(res2)
-'''
 res1 = urllib.request.urlopen("http://www.vpngate.net/api/iphone/")
 cr = csv.reader(codecs.iterdecode(res1, 'utf-8'), delimiter=",", lineterminator="\r\n")
 
@@ -136,4 +130,4 @@ for row in cr:
 							sys.exit(0)
 print("Cannot find a valid VPN server.")
 print("--------------------------------------------------------")
-sys.exit(-1)
+sys.exit(1)
